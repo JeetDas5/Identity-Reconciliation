@@ -1,4 +1,11 @@
-import { integer, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import {
+  integer,
+  pgTable,
+  serial,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 
 export const contacts = pgTable("contacts", {
   id: serial("id").primaryKey(),
@@ -8,10 +15,12 @@ export const contacts = pgTable("contacts", {
 
   linkedId: integer("linked_id"),
 
-  linkPrecedence: integer("link_precedence").notNull(),
+  linkPrecedence: varchar("linkPrecedence")
+    .$type<"primary" | "secondary">()
+    .notNull(),
 
-  createdAt: timestamp("created_at").notNull(),
-  updatedAt: timestamp("updated_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 
   deletedAt: timestamp("deleted_at"),
 });
