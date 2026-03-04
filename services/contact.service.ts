@@ -66,14 +66,12 @@ export async function identifyContact({ email, phoneNumber }: Props) {
       .where(eq(contacts.id, contact.id));
   }
 
-  const emailExists = relatedContacts.some(
-    (contact) => contact.email === email,
-  );
-  const phoneExists = relatedContacts.some(
-    (contact) => contact.phoneNumber === phoneNumber,
-  );
+  const isNewEmail = email && !relatedContacts.some((c) => c.email === email);
 
-  if (!emailExists || !phoneExists) {
+  const isNewPhone =
+    phoneNumber && !relatedContacts.some((c) => c.phoneNumber === phoneNumber);
+
+  if (isNewEmail || isNewPhone) {
     const [newContact] = await db
       .insert(contacts)
       .values({
@@ -87,5 +85,15 @@ export async function identifyContact({ email, phoneNumber }: Props) {
     relatedContacts.push(newContact);
   }
 
-  return buildResponse(relatedContacts);
+  const finalContacts = await db
+    .select()
+    .from(contacts)
+    .where(
+      or(
+        eq(contacts.id, primaryContact.id),
+        eq(contacts.linkedId, primaryContact.id),
+      ),
+    );
+
+  return buildResponse(finalContacts);
 }

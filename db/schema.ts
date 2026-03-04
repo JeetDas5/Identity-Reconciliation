@@ -15,7 +15,7 @@ export const contacts = pgTable("contacts", {
 
   linkedId: integer("linked_id"),
 
-  linkPrecedence: varchar("linkPrecedence")
+  linkPrecedence: varchar("link_precedence")
     .$type<"primary" | "secondary">()
     .notNull(),
 

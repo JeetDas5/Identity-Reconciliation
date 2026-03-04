@@ -6,11 +6,10 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    // Validate request body
     const parsed = identifySchema.safeParse(body);
 
     if (!parsed.success) {
-      console.log("Failed to parse request body. ", parsed.error);
+      console.log("Failed to parse request body. ", parsed.error.message);
       return NextResponse.json(
         {
           error: parsed.error.issues,
