@@ -2,8 +2,13 @@
 
 A powerful backend service for identifying and reconciling user contacts based on email addresses and phone numbers. This API intelligently links related contacts together, establishing primary-secondary relationships to maintain data integrity and deduplication.
 
+## Live Deployment
+
+**Deployed URL**: [https://identity-reconciliation-beryl.vercel.app](https://identity-reconciliation-beryl.vercel.app)
+
 ## Table of Contents
 
+- [Live Deployment](#-live-deployment)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Prerequisites](#prerequisites)
@@ -12,6 +17,7 @@ A powerful backend service for identifying and reconciling user contacts based o
 - [Database Setup](#database-setup)
 - [Running the Server](#running-the-server)
 - [API Documentation](#api-documentation)
+- [Health Check](#health-check)
 - [Example Usage](#example-usage)
 - [Architecture](#architecture)
 
@@ -188,9 +194,68 @@ Content-Type: application/json
   }
   ```
 
+## Health Check
+
+### Health Check Endpoint
+
+**Endpoint**: `GET /api/health`
+
+**Description**: Checks the health and status of the API server and database connection.
+
+#### Request
+
+**URL**: `http://localhost:3000/api/health`
+
+**Method**: `GET`
+
+#### Response (Healthy)
+
+**Status Code**: `200 OK`
+
+**Response Body**:
+
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-03-04T10:30:45.123Z",
+  "database": "connected",
+  "uptime": 3456.789
+}
+```
+
+**Response Fields**:
+
+- `status` (string): `"healthy"` or `"unhealthy"`
+- `timestamp` (string): ISO 8601 timestamp when health check was performed
+- `database` (string): `"connected"` or `"disconnected"`
+- `uptime` (number): Server uptime in seconds
+
+#### Response (Unhealthy)
+
+**Status Code**: `503 Service Unavailable`
+
+**Response Body**:
+
+```json
+{
+  "status": "unhealthy",
+  "timestamp": "2026-03-04T10:30:45.123Z",
+  "database": "disconnected",
+  "error": "Database connection failed"
+}
+```
+
+### Health Check cURL Example
+
+```bash
+curl -X GET https://identity-reconciliation-beryl.vercel.app/api/health
+```
+
 ## Example Usage
 
 ### cURL
+
+**Development**:
 
 ```bash
 curl -X POST http://localhost:3000/api/identity \
@@ -201,10 +266,23 @@ curl -X POST http://localhost:3000/api/identity \
   }'
 ```
 
+**Production**:
+
+```bash
+curl -X POST https://identity-reconciliation-beryl.vercel.app/api/identity \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "john@example.com",
+    "phoneNumber": "+1234567890"
+  }'
+```
+
 ### JavaScript/Fetch
 
 ```javascript
-const response = await fetch("http://localhost:3000/api/identity", {
+const baseUrl = "http://localhost:3000"; // or 'https://identity-reconciliation-beryl.vercel.app' for production
+
+const response = await fetch(`${baseUrl}/api/identity`, {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -224,8 +302,12 @@ console.log(data);
 ```python
 import requests
 
+# For development
+base_url = 'http://localhost:3000'
+# For production: base_url = 'https://identity-reconciliation-beryl.vercel.app'
+
 response = requests.post(
-    'http://localhost:3000/api/identity',
+    f'{base_url}/api/identity',
     json={
         'email': 'john@example.com',
         'phoneNumber': '+1234567890'
@@ -318,8 +400,10 @@ print(response.json())
 ```
 ├── app/
 │   ├── api/
-│   │   └── identity/
-│   │       └── route.ts          # API endpoint handler
+│   │   ├── identity/
+│   │   │   └── route.ts          # Identify contact endpoint
+│   │   └── health/
+│   │       └── route.ts          # Health check endpoint
 │   ├── layout.tsx
 │   └── page.tsx
 ├── db/
@@ -353,4 +437,14 @@ After modifying `db/schema.ts`, push the new schema:
 pnpm run db:push
 ```
 
-Built with ❤️ by [Jeet Das] - [GitHub](https://github.com/JeetDas5)
+## Deployment
+
+The application is deployed on **Vercel**:
+
+- **Live URL**: [https://identity-reconciliation-beryl.vercel.app](https://identity-reconciliation-beryl.vercel.app)
+- **Health Check**: [https://identity-reconciliation-beryl.vercel.app/api/health](https://identity-reconciliation-beryl.vercel.app/api/health)
+- **Identify Endpoint**: `POST https://identity-reconciliation-beryl.vercel.app/api/identity`
+
+This project is part of the Bitespeed Intern Assignment.
+
+Built with ❤️ by [Jeet Das](https://github.com/JeetDas5)
